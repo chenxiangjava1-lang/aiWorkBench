@@ -1,0 +1,72 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+  tomcat:
+    # 允许 task_key 里的 | 字符（Tomcat 10 默认禁止）
+    relaxed-path-chars:
+      - "|"
+    relaxed-query-chars:
+      - "|"
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/ai_workbench?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowMultiQueries=true&useSSL=false
+    username: root
+    password: "123456"
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+      force-request: true
+      force-response: true
+  http:
+    converters:
+      preferred-json-mapper: jackson
+  jackson:
+    charset: UTF-8
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+    serialization:
+      write-dates-as-timestamps: false
+    # 让 JSON 输出全部 snake_case（和前端模板匹配，Node.js 旧版就是 snake_case）
+    property-naming-strategy: SNAKE_CASE
+    # 不把 null 字段过滤掉（前端需要知道有没有值）
+    default-property-inclusion: NON_NULL
+
+  # ========== Spring AI（火山引擎 Ark，OpenAI 兼容） ==========
+  ai:
+    openai:
+      # 火山引擎 Ark base URL（固定 cn-beijing）
+      base-url: ${LLM_ENDPOINT:https://ark.cn-beijing.volces.com/api/v3}
+      api-key: ${LLM_API_KEY:}
+      chat:
+        options:
+          # 模型 ID（从 /models 接口获取，需在控制台开通）
+          model: ${LLM_MODEL:kimi-k3-1-pro-261024}
+          temperature: 1.0
+
+# 旧 RestTemplate 兼容（同 Ark 配置）
+llm:
+  endpoint: ${LLM_ENDPOINT:https://ark.cn-beijing.volces.com/api/v3}
+  api-key: ${LLM_API_KEY:}
+  model: ${LLM_MODEL:kimi-k3-1-pro-261024}
+  timeout-ms: 15000
+
+logging:
+  level:
+    com.aiworkbench: INFO
+    org.springframework.ai: DEBUG

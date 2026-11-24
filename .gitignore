@@ -1,0 +1,24 @@
+# Backend
+ai-workbench-java/target/
+ai-workbench-java/*.iml
+ai-workbench-java/.idea/
+
+# Frontend
+ai-workbench/client/node_modules/
+ai-workbench/client/dist/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Logs
+*.log
+
+# Env
+.env
+.env.local
