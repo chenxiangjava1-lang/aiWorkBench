@@ -14,30 +14,43 @@
 ## 目录结构
 
 ```
-F:\aiProject\1\
+f:\aiWorkBench\
+├── README.md                     # 本文件
+├── 架构说明.md                   # 生产规模扩展规划
+├── 架构图.png                    # 系统架构时序图
 ├── start.ps1                     # 一键启动（MySQL + Spring Boot + Vue）
 ├── stop.ps1                      # 一键停止（kill java + node）
 ├── clean_all.sql                 # 清空所有表数据
-├── ai-workbench-java\            # 后端
-│   ├── src\main\java\com\aiworkbench\
-│   │   ├── config\               # CorsConfig / TimeUtil
-│   │   ├── controller\           # ApiController / DashboardController / ActionController
-│   │   ├── entity\               # 9 个 JPA 实体
-│   │   ├── repository\           # 9 个 Repo
-│   │   └── service\              # AnalyzeService / AuditService / RepairService / SeedService
-│   └── src\main\resources\
-│       ├── application.yml       # MySQL / Jackson SNAKE_CASE / Ark 配置
-│       └── logback.xml           # UTF-8 日志
+├── ai-workbench-java\            # 后端（Spring Boot 3.2.5 + JDK 17）
+│   ├── pom.xml
+│   └── src\main\
+│       ├── java\com\aiworkbench\
+│       │   ├── AiWorkbenchApplication.java   # 启动类
+│       │   ├── config\                        # CorsConfig / TimeUtil
+│       │   ├── controller\                    # ApiController / DashboardController / ActionController
+│       │   ├── entity\                        # 9 个 JPA 实体
+│       │   ├── repository\                    # 9 个 Repo
+│       │   └── service\                       # AnalyzeService / AuditService / RepairService / SeedService
+│       └── resources\
+│           ├── application.yml                # MySQL / Jackson SNAKE_CASE / Ark 配置
+│           └── logback-spring.xml             # UTF-8 日志
 └── ai-workbench\
-    └── client\                   # 前端 Vue 3
-        ├── src\views\
-        │   ├── Dashboard.vue     # 概览（指标卡 + 筛选 + 种子导入）
-        │   ├── TaskList.vue      # 任务列表
-        │   ├── TaskDetail.vue    # 任务详情（采集记录 / AI 分析 / 执行历史 / 巡检）
-        │   └── Audit.vue         # 巡检中心
-        ├── src\api\index.js      # axios 封装
-        ├── src\utils\format.js   # 时间 / task_key 格式化
-        └── vite.config.js        # 代理 /api → :8080
+    └── client\                   # 前端（Vue 3 + Vite 5 + Element Plus）
+        ├── index.html
+        ├── package.json
+        ├── vite.config.js        # 代理 /api → :8080
+        └── src\
+            ├── main.js           # 入口
+            ├── App.vue
+            ├── router\index.js   # Vue Router
+            ├── api\index.js      # axios 封装
+            ├── utils\format.js   # 时间 / task_key 格式化
+            ├── assets\
+            └── views\
+                ├── Dashboard.vue # 概览（指标卡 + 筛选 + 种子导入）
+                ├── TaskList.vue  # 任务列表
+                ├── TaskDetail.vue# 任务详情（采集记录 / AI 分析 / 执行历史 / 巡检）
+                └── Audit.vue     # 巡检中心
 ```
 
 ## 快速启动
@@ -54,7 +67,7 @@ Get-Service MySQLWorkbench | Start-Service
 ### 2. 一键启动三服务
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File F:\aiProject\1\start.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File f:\aiWorkBench\start.ps1
 ```
 
 ```
@@ -70,7 +83,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File F:\aiProject\1\start.ps1
 ### 3. 一键停止
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File F:\aiProject\1\stop.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File f:\aiWorkBench\stop.ps1
 ```
 
 ## 手动重启 Spring Boot
@@ -82,12 +95,12 @@ taskkill /F /IM java.exe; Start-Sleep 2
 # 设环境 + 编译
 $env:JAVA_HOME = "F:\aiSoft\jdk-17.0.20.1+1"
 $env:PATH = "$($env:JAVA_HOME)\bin;F:\aiSoft\apache-maven-3.9.16\bin;$env:PATH"
-cd F:\aiProject\1\ai-workbench-java
+cd f:\aiWorkBench\ai-workbench-java
 & mvn.cmd package -DskipTests -q
 
 # WMI 后台启动（IDE 杀不掉）
 $JDK = "F:\aiSoft\jdk-17.0.20.1+1"
-$BACKEND = "F:\aiProject\1\ai-workbench-java"
+$BACKEND = "f:\aiWorkBench\ai-workbench-java"
 $jarPath = Join-Path $BACKEND "target\ai-workbench-1.0.0.jar"
 ([WMICLASS]"\\.\ROOT\CIMV2:Win32_Process").Create("`"$JDK\bin\java.exe`" -jar `"$jarPath`"", $BACKEND, $null)
 ```
@@ -109,7 +122,7 @@ Invoke-RestMethod -Method POST "http://localhost:8080/api/seed/import?use_defaul
 DBeaver / MySQL 客户端执行 `clean_all.sql`，或：
 
 ```powershell
-& "F:\aiSoft\mysql-commercial-26.7.0-winx64\bin\mysql.exe" -u root -p123456 < "F:\aiProject\1\clean_all.sql"
+& "F:\aiSoft\mysql-commercial-26.7.0-winx64\bin\mysql.exe" -u root -p123456 < "f:\aiWorkBench\clean_all.sql"
 ```
 
 ## 核心 API
